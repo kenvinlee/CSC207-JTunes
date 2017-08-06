@@ -1,0 +1,50 @@
+import java.util.ArrayList;
+
+public class CloudUser 
+{
+	private String password, user, email;
+	private ArrayList<String> downloadedSongs;
+	
+	//no setters, because we don't want ANY of this to change
+	public CloudUser(String pass, String use, String email)
+	{
+		this.password = pass;
+		this.user = use;
+		this.email = email;
+	}
+	
+	//might not be needed... maybe for a login?
+	public boolean verUser(String pass, String use)
+	{
+		return (pass.equals(this.password) && (use.equals(this.user)));
+	}
+	
+	//no clue what we can do with this, but instinct tells me it's very necessary
+	public String getEmail()
+	{
+		return this.email;
+	}
+	
+	//This can be used to for some retrieve username function
+	public String getUser()
+	{
+		return this.user;
+	}
+	
+	//I'm guessing this can be used for some retrieve password function
+	public String getPass()
+	{
+		return this.password;
+	}
+	
+	//tracks if songs have been downloaded from cloud already by cloud song ID
+	public void trackDownload(String id)
+	{
+		downloadedSongs.add(id);
+	}
+	
+	public boolean equals(CloudUser id)
+	{
+		return id.password.equals(this.password) && id.user.equals(this.user)&& id.email.equals(this.email); 
+	}
+}

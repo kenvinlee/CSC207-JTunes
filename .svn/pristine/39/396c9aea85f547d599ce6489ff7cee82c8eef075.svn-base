@@ -1,0 +1,23 @@
+import java.io.*;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+
+/**
+ * The class containing the main method which will run the program.
+ */
+public class JTunes {
+	
+	/**
+	 * Main class which drives user interface.
+	 */
+	public static void main(String[] args) throws IOException, InvalidMidiDataException, MidiUnavailableException 
+	{
+		//CDF computers for some reason read pathfiles differently. If there is a FileNotFound exception,
+		//move the songs into a different folder.
+		//Also, for some reason, CDF doesn't allow us to switch songs or play more than one song
+		//given a single sequencer. This is ridiculous. The program works perfectly on all our
+		//computers.  
+		new GUI();
+	}
+}

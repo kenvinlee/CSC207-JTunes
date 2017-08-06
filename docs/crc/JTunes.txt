@@ -1,0 +1,8 @@
+Class Name: JTunes
+Responsibilities:
+- Coordinate/act as the controller between user input and program functionality
+- Allow the user to edit the contents of the musicLibrary
+- Gives the user access to the player class to play/pause/stop the song playing
+- Allow the user to download songs from the jTunes Cloud Store
+
+Collaborators:

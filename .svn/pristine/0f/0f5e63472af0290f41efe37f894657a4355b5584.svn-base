@@ -1,0 +1,106 @@
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import java.awt.Window.Type;
+import javax.swing.JList;
+import javax.swing.JScrollBar;
+import javax.swing.JComboBox;
+import java.awt.ScrollPane;
+import javax.swing.JLabel;
+import java.awt.Font;
+import javax.swing.JCheckBoxMenuItem;
+
+
+public class newGUI {
+
+	private JFrame frmJtunes;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					newGUI window = new newGUI();
+					window.frmJtunes.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public newGUI() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frmJtunes = new JFrame();
+		frmJtunes.setTitle("JTunes");
+		frmJtunes.setBounds(100, 100, 800, 600);
+		frmJtunes.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JButton btnNewButton = new JButton("New button");
+		
+		JList list = new JList();
+		GroupLayout groupLayout = new GroupLayout(frmJtunes.getContentPane());
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(108)
+					.addComponent(btnNewButton)
+					.addPreferredGap(ComponentPlacement.RELATED, 253, Short.MAX_VALUE)
+					.addComponent(list, GroupLayout.PREFERRED_SIZE, 269, GroupLayout.PREFERRED_SIZE)
+					.addGap(65))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap(91, Short.MAX_VALUE)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(list, GroupLayout.PREFERRED_SIZE, 297, GroupLayout.PREFERRED_SIZE)
+							.addGap(153))
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 76, GroupLayout.PREFERRED_SIZE)
+							.addGap(167))))
+		);
+		frmJtunes.getContentPane().setLayout(groupLayout);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frmJtunes.setJMenuBar(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNewMenuItem = new JMenuItem("Open");
+		mnFile.add(mntmNewMenuItem);
+		
+		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Cool...");
+		mnFile.add(mntmNewMenuItem_1);
+		
+		JMenu mnPlayback = new JMenu("Playback");
+		menuBar.add(mnPlayback);
+		
+		JCheckBoxMenuItem chckbxmntmShuffle = new JCheckBoxMenuItem("Shuffle");
+		mnPlayback.add(chckbxmntmShuffle);
+		
+		JCheckBoxMenuItem chckbxmntmRepeat = new JCheckBoxMenuItem("Repeat");
+		mnPlayback.add(chckbxmntmRepeat);
+	}
+}

@@ -1,0 +1,785 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequence;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+/**
+ * A Graphical User Interface
+ */
+public class GUI extends JFrame implements ActionListener, ListSelectionListener
+{	
+	private JPanel home;
+	private JButton goToCloud, goToLib, back, back2;
+	private JLabel title;
+
+	private JPanel player;
+	private JPanel listSongs;
+	private JPanel playlists;
+	private JLabel nowPlaying;
+	private JButton stop, play, pause, skip, shuffle;
+	private JButton addSong, removeSong, playByArtist;
+	private JButton addPlaylist, removePlaylist, load;
+	private JList libSongs;
+	private JList lists;
+	private JScrollPane forPlaylist;
+	private JScrollPane libScroll;
+
+	private JOptionPane addPlaylistBox;
+	private JOptionPane removePlaylistBox;
+
+	private JPanel cloudLogin;
+	private JTextField user, email, pass;
+	private JButton createUser, login;
+	private JLabel userLab, emailLab, passLab;
+	private JLabel loginMess;
+
+	private JPanel cloud; 
+	private JButton download, logout; 
+	private JList cloudSongs; 
+	private JScrollPane cloudScroll;
+
+	private MusicLibrary lib;
+	private Playlist selectedPlaylist, currentPlaylist, mainPlaylist; //WHATEVER ANYONE DOES, DON'T EVER REASSIGN MAIN PLAYLIST TO ANYTHING
+	private Song selectedSong, currentSong;
+	private Song selCloudSong;
+	private JPlayer jPlay;
+	private String nowPlay, path;
+	private Song songPlaying;
+	private CloudAction link;
+	private CloudUser cUser;
+	private int playlistIndex;
+	private boolean shuffling;
+
+	/**
+	 * Create a new instance of the GUI class.
+	 */
+	public GUI() throws MidiUnavailableException
+	{	
+		super("JTunes");
+		// Declarations needed for GUI to be functional.
+		lib = new MusicLibrary("Main Library");
+
+		jPlay = new JPlayer();
+		link = new CloudAction();
+		nowPlay = "Nothing";
+		path = null;
+		cUser = null;
+		shuffling = false;
+		songPlaying = null;
+
+		addPlaylistBox = new JOptionPane();
+		mainPlaylist = lib.getPlaylistsInLibrary().get(0);
+		currentPlaylist = mainPlaylist;
+
+		//Sets up home screen
+		createHome();
+		//Sets up JPlayer screen
+		createPlayer();
+		//Sets up login page
+		createLogin();
+		//Sets up Cloud interface
+		createCloud();
+
+		//Set up JFrame
+		this.setContentPane(home);
+		setSize(800, 400);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+
+	/**
+	 * Generate Home page
+	 */
+	public void createHome()
+	{
+		//Create Header and buttons for home page
+		title = new JLabel();
+
+		title.setIcon(new ImageIcon((GUI.class.getResource("Icons" + File.separator + "Jtunes_3.png"))));
+		title.setFont(new Font("Book Antiqua", Font.BOLD, 48));
+		goToCloud = new JButton("Cloud");
+		goToCloud.addActionListener(this);
+		goToLib = new JButton("Library");
+		goToLib.addActionListener(this);
+
+		JPanel homeButtons = new JPanel();
+		homeButtons.add(goToLib);
+		homeButtons.add(goToCloud);
+
+		// Add button to open user guide and version information
+		JPanel version = new JPanel();
+		version.setLayout(new GridLayout(1,1));
+		JPanel help = new JPanel();
+		help.setLayout(new GridLayout(1,1));
+		JLabel versionLab = new JLabel("v. 3.1.415926535");
+		JButton helpButt = new JButton("User Guide");
+		version.add(versionLab);
+		help.add(helpButt);
+
+		JPanel versionAndHelp = new JPanel();
+		versionAndHelp.setLayout(new BorderLayout());
+		versionAndHelp.add(version, BorderLayout.NORTH);
+		versionAndHelp.add(help, BorderLayout.SOUTH);
+		version.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+		JPanel titPane = new JPanel();
+		titPane.setLayout(new GridLayout(1,1));
+		titPane.add(title);
+		home = new JPanel();
+		home.setLayout(new BorderLayout());
+		home.add(titPane, BorderLayout.NORTH);
+		home.add(homeButtons, BorderLayout.SOUTH);
+		home.add(versionAndHelp, BorderLayout.CENTER);
+		titPane.setBorder(BorderFactory.createEmptyBorder(100, 280, 0, 0));
+		versionAndHelp.setBorder(BorderFactory.createEmptyBorder(10, 340, 70, 340));
+	}
+
+	/**
+	 * Generate Music Library page
+	 */
+	public void createPlayer()
+	{
+		player = new JPanel();
+		player.setLayout(new BorderLayout());
+
+		//Add buttons to Player interface. N.B. skip is left unimplemented
+		JPanel playButtons = new JPanel(); 
+		playButtons.setLayout(new FlowLayout());
+		stop = new JButton("Stop");
+		play = new JButton("Play");
+		pause = new JButton("Pause");
+		skip = new JButton("Skip");
+
+		stop.addActionListener(this);
+		play.addActionListener(this);
+		pause.addActionListener(this);
+		skip.addActionListener(this);
+		playButtons.add(play);
+		playButtons.add(pause);
+		playButtons.add(stop);
+		playButtons.add(skip);
+
+		JPanel playlistButt = new JPanel();
+		playlistButt.setLayout(new GridLayout(3, 1));
+		JPanel list1 = new JPanel();
+		JPanel list2 = new JPanel();
+		JPanel list3 = new JPanel();
+		addPlaylist = new JButton("Add");
+		removePlaylist = new JButton("Delete");
+		load = new JButton("Load Playlist");
+		addSong = new JButton("Add Song");
+		removeSong = new JButton("Remove Song");
+		shuffle = new JButton("Shuffle");
+		playByArtist = new JButton("Play all songs by selected artist");
+		playByArtist.addActionListener(this);
+		shuffle.addActionListener(this);
+		addPlaylist.addActionListener(this);
+		removePlaylist.addActionListener(this);
+		load.addActionListener(this);
+		addSong.addActionListener(this);
+		removeSong.addActionListener(this);
+		list1.add(addPlaylist);
+		list1.add(removePlaylist);
+		list1.add(load);
+		list2.add(addSong);
+		list2.add(removeSong);
+		list2.add(shuffle);
+		list3.add(playByArtist);
+		playlistButt.add(list1);
+		playlistButt.add(list2);
+		playlistButt.add(list3);
+
+		//Add Music Library to Player interface
+		currentPlaylist = lib.getPlaylistsInLibrary().get(0);
+		libSongs = new JList(lib.getPlaylistsInLibrary().get(0).getSongsInPlaylist().toArray()); 
+		libSongs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		libSongs.setLayoutOrientation(JList.VERTICAL);
+		libSongs.setVisibleRowCount(5);
+		libSongs.addListSelectionListener(this);
+
+		lists = new JList(lib.getPlaylistsInLibrary().toArray());
+		lists.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		lists.setLayoutOrientation(JList.VERTICAL);
+		lists.setVisibleRowCount(5);
+		lists.addListSelectionListener(this);
+
+		playlists = new JPanel();
+		playlists.setLayout(new GridLayout(2,1));
+		forPlaylist = new JScrollPane(lists);
+		forPlaylist.setPreferredSize(new Dimension(350, 200)); 
+		playlists.add(forPlaylist);
+		playlists.add(playlistButt);
+		playlists.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		listSongs = new JPanel();
+		listSongs.setLayout(new GridLayout(2,1));
+		libScroll = new JScrollPane(libSongs);
+		libScroll.setPreferredSize(new Dimension(350, 200));
+		listSongs.add(libScroll);
+		listSongs.add(playButtons);
+		listSongs.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+		//Create Now Playing label
+		JPanel playerBot = new JPanel();
+		playerBot.setLayout(new GridLayout(1, 4));
+		back = new JButton("Back");
+		back.addActionListener(this);
+		nowPlaying = new JLabel(nowPlay);
+		nowPlaying.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		nowPlaying.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		playerBot.add(nowPlaying);
+		playerBot.add(back, 1);
+
+		//Add buttons, Music Library, Now Playing label to Player
+		player.add(playerBot, BorderLayout.SOUTH);
+		player.add(playlists, BorderLayout.WEST);
+		player.add(listSongs, BorderLayout.EAST);
+		playButtons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	}
+	/**
+	 * Generate Login page for the cloud
+	 */
+	public void createLogin()
+	{
+		cloudLogin = new JPanel();
+		cloudLogin.setLayout(new BorderLayout());
+
+		//Generate text fields and buttons for logging in
+		JPanel loginLabels = new JPanel();
+		loginLabels.setLayout(new GridLayout(4,2));
+		userLab = new JLabel("Username: ");
+		user = new JTextField(15);
+		emailLab = new JLabel("E-mail address: ");
+		email = new JTextField(15);
+		passLab = new JLabel("Password: ");
+		pass = new JTextField(15);
+		login = new JButton("Log in");
+		login.addActionListener(this);
+		createUser = new JButton("Create User");
+		createUser.addActionListener(this);
+		loginLabels.add(userLab);
+		loginLabels.add(user);
+		loginLabels.add(emailLab);
+		loginLabels.add(email);
+		loginLabels.add(passLab);
+		loginLabels.add(pass);
+		loginLabels.add(login);
+		loginLabels.add(createUser);
+		//FORMATTING
+		loginLabels.setBorder(BorderFactory.createEmptyBorder(100, 150, 100, 150));
+		cloudLogin.add(loginLabels, BorderLayout.CENTER);
+
+		// Generate title for Login Page
+		JPanel logTitle = new JPanel();
+		logTitle.setLayout(new GridLayout(1,1));
+		JLabel loginTitle = new JLabel("jTunes Cloud: Log in or create a new account");
+		loginTitle.setFont(new Font("Book Antiqua", Font.BOLD, 20));
+		logTitle.add(loginTitle);
+		//FORMATTING
+		logTitle.setBorder(BorderFactory.createEmptyBorder(20, 40, 0, 0));
+		cloudLogin.add(logTitle, BorderLayout.NORTH);
+
+		//Login error message
+		loginMess = new JLabel("");
+		JPanel cloudLoginBottomPanel = new JPanel();
+		cloudLoginBottomPanel.setLayout(new GridLayout(1,4));
+		// CREATE BACK BUTTON
+		back2 = new JButton("Back");
+		back2.addActionListener(this);
+		// FORMATTING
+		cloudLogin.add(cloudLoginBottomPanel, BorderLayout.SOUTH);
+		cloudLoginBottomPanel.add(loginMess);
+		cloudLoginBottomPanel.add(back2, 1);
+	}
+
+
+	/**
+	 * Generate JCloud page
+	 */
+	public void createCloud()
+	{
+		//Add list of songs in Cloud and buttons to Cloud interface
+		cloud = new JPanel(); 
+		cloud.setLayout(new BorderLayout()); 
+
+		try {
+			cloudSongs = new JList(link.songList().toArray());
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		} 
+		cloudSongs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		cloudSongs.setLayoutOrientation(JList.VERTICAL); 
+		cloudSongs.setVisibleRowCount(5); 
+		cloudSongs.addListSelectionListener(this); 
+
+		JPanel listCloudSongs = new JPanel(); 
+		cloudScroll = new JScrollPane(cloudSongs); 
+		cloudScroll.setPreferredSize(new Dimension(350, 200)); 
+		listCloudSongs.add(cloudScroll); 
+
+		JPanel downloadSongs = new JPanel(); 
+		downloadSongs.setLayout(new GridLayout(3,1)); 
+		download = new JButton("Download Song"); 
+		logout = new JButton("Log out"); 
+		download.addActionListener(this); 
+		logout.addActionListener(this); 
+		downloadSongs.add(download); 
+		downloadSongs.add(new JPanel()); 
+		downloadSongs.add(logout); 
+		downloadSongs.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 50)); 
+		cloud.add(listCloudSongs, BorderLayout.WEST); 
+		cloud.add(downloadSongs, BorderLayout.EAST); 
+	}
+
+	/**
+	 * Give functionality to buttons
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+
+		//Takes user from Home page to Cloud login screen
+		if (e.getActionCommand().equals("Cloud"))
+		{
+			this.setContentPane(cloudLogin);
+			this.validate();
+		}
+
+		//Takes user from Home page to Music Library
+		if (e.getActionCommand().equals("Library"))
+		{
+			this.setContentPane(player);
+			this.validate();
+		}
+
+		//Implement functionality of play button
+		if (e.getActionCommand().equals("Play"))
+		{
+			if (path == null)
+			{
+				nowPlaying.setText("You have not yet loaded a song");
+			}
+			else if (jPlay.isPlaying())
+			{
+				jPlay.pause();
+
+				try {
+
+					jPlay.openSequencer();
+					jPlay.setSong(jPlay.returnSequence(path));
+					jPlay.play();
+					nowPlaying.setText(nowPlay);
+					songPlaying = selectedSong;
+
+					// Add a listener for meta message events
+					jPlay.getSqcr().addMetaEventListener(
+							new MetaEventListener() 
+							{
+								public void meta(MetaMessage event) 
+								{
+									if (event.getType() == 47) {
+										// Sequencer is done playing
+										try {
+											loadNextSong();
+										} catch (IOException e) {
+											e.printStackTrace();
+
+										} catch (InvalidMidiDataException e) {
+											e.printStackTrace();
+
+										} catch (MidiUnavailableException e) {
+											e.printStackTrace();
+										}
+									}
+								}
+							});
+
+				} catch (IOException e1) {
+
+					e1.printStackTrace();
+				} catch (InvalidMidiDataException e1) {
+
+					e1.printStackTrace();
+				} catch (MidiUnavailableException e1) {
+
+					e1.printStackTrace();
+				}
+
+			}
+			else
+			{
+				try {
+					jPlay.openSequencer();
+					jPlay.setSong(jPlay.returnSequence(path));
+					jPlay.play();
+					nowPlaying.setText(nowPlay);
+					songPlaying = selectedSong;
+
+					jPlay.getSqcr().addMetaEventListener(
+							new MetaEventListener() 
+							{
+								public void meta(MetaMessage event) 
+								{
+									if (event.getType() == 47) {
+										// Sequencer is done playing
+										try {
+											loadNextSong();
+										} catch (IOException e) {
+											e.printStackTrace();
+
+										} catch (InvalidMidiDataException e) {
+											e.printStackTrace();
+
+										} catch (MidiUnavailableException e) {
+											e.printStackTrace();
+										}
+									}
+								}
+							});
+
+				} catch (IOException e1) {
+
+					e1.printStackTrace();
+				} catch (InvalidMidiDataException e1) {
+
+					e1.printStackTrace();
+				} catch (MidiUnavailableException e1) {
+
+					e1.printStackTrace();
+				}
+			}
+		}
+
+		//Implement functionality of stop button
+		if (e.getActionCommand().equals("Stop"))
+		{
+			jPlay.pause();
+			nowPlaying.setText("Not playing anything");
+		}
+
+		//Implement functionality of pause button
+		if (e.getActionCommand().equals("Pause"))
+		{
+			jPlay.pause();
+		}
+		
+		//skips song to play next one
+		if (e.getActionCommand().equals("Skip"))
+		{
+			if (jPlay.isPlaying())
+			{
+				try {
+					this.loadNextSong();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+
+				} catch (InvalidMidiDataException e1) {
+					e1.printStackTrace();
+
+				} catch (MidiUnavailableException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		}
+
+		//Implement functionality of login button
+		if (e.getActionCommand().equals("Log in"))
+		{
+			String password = pass.getText().trim();
+			String username = user.getText().trim();
+			String eMail = email.getText().trim();
+
+			if (!(password.isEmpty() || username.isEmpty() || eMail.isEmpty()))
+			{
+				try {
+					if (! link.checkIfAccountExists(username, eMail, password))
+					{
+						cUser = new CloudUser(username, eMail, password);
+						ArrayList<Song> dledSongs = link.checkUserDL(cUser);
+						
+						for (int i = 0; i < dledSongs.size(); i++)
+						{
+							dledSongs.get(i).setPath(dledSongs.get(i).getID());
+							link.downloadSong(cUser, dledSongs.get(i).getID());
+							mainPlaylist.getSongsInPlaylist().add(dledSongs.get(i));
+						}
+						
+						libSongs.setListData(mainPlaylist.getSongsInPlaylist().toArray());
+						
+						this.setContentPane(cloud);
+						this.validate();
+					}
+				} catch (IOException e1) {
+					loginMess.setText("Log in failed");
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			else
+			{
+				loginMess.setText("You are missing information in a field.");	
+			}
+		}
+		//Allow button to create user
+		if (e.getActionCommand().equals("Create User"))
+		{
+			String password = pass.getText().trim();
+			String username = user.getText().trim();
+			String eMail = email.getText().trim();
+
+			if (!(password.isEmpty() || username.isEmpty() || eMail.isEmpty()))
+			{
+				try {
+					link.createUser(username, eMail, password);
+					loginMess.setText(link.getS());
+				} catch (IOException e1) {
+
+					loginMess.setText("User creation unsuccessful; User may exist");
+				}
+			}
+			else
+				loginMess.setText("You are missing information in a field.");
+		}
+		//Back buttons return to Home page
+		if (e.getActionCommand().equals("Back")) {
+			this.setContentPane(home);
+			this.validate();
+		}
+		//Logout button returns to Home page
+		if (e.getActionCommand().equals("Log out"))
+		{
+			this.setContentPane(home);
+			this.validate();
+		}
+
+		//Download song button
+		if (e.getActionCommand().equals("Download Song"))
+		{
+			try {
+				if (selCloudSong != null)
+				{
+					if (!link.checkDownloaded(selCloudSong, cUser))
+					{
+						link.downloadSong(cUser, selCloudSong.getID());
+						Song downloadedSong = selCloudSong;
+						downloadedSong.setPath(downloadedSong.getID());
+						mainPlaylist.playlistAddSong(downloadedSong);
+						JOptionPane.showMessageDialog(null, "Download complete!");
+						libSongs.setListData(mainPlaylist.getSongsInPlaylist().toArray());
+					}
+					else
+					{
+						link.downloadSong(cUser, selCloudSong.getID());
+					}
+				}
+				else
+					JOptionPane.showMessageDialog(null, "You need to select a song to download!");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
+		//Add playlist button
+		if (e.getActionCommand().equals("Add"))
+		{
+			lib.addPlaylistToLibrary(new Playlist((String) addPlaylistBox.showInputDialog("Enter the name of your new playlist.")));
+			lists.setListData(lib.getPlaylistsInLibrary().toArray());
+		}
+
+		//Delete playlist button
+		if (e.getActionCommand().equals("Delete"))
+		{			
+
+			int del = removePlaylistBox.showConfirmDialog(null, "Are you sure you want to delete this playlist?", "Delete Playlist?", JOptionPane.YES_NO_OPTION);
+
+			if (del == JOptionPane.YES_OPTION)
+			{
+				if (selectedPlaylist != null && (lib.searchForPlaylist(selectedPlaylist.getName()) != -1))
+				{
+					lib.deletePlaylistFromLibrary(selectedPlaylist.getName());
+					lists.setListData(lib.getPlaylistsInLibrary().toArray());
+					libSongs.setListData(mainPlaylist.getSongsInPlaylist().toArray());
+				}
+				else
+					removePlaylistBox.showMessageDialog(null, "You need to select a playlist to delete!");
+			}
+		}
+
+		//loads a playlist's songs into view
+		if (e.getActionCommand().equals("Load Playlist"))
+		{
+			if (selectedPlaylist != null)
+			{
+				libSongs.setListData(lib.getPlaylistsInLibrary().
+						get(lib.searchForPlaylist(selectedPlaylist.getName())).getSongsInPlaylist().toArray());
+				currentPlaylist = selectedPlaylist;
+			}
+		}
+
+		//adds a song to another playlist
+		if (e.getActionCommand().equals("Add Song"))
+		{
+			if (selectedSong != null && selectedPlaylist != null)
+			{	
+				if (selectedPlaylist.isMain())
+				{
+					if (selectedPlaylist.doesSongExist(selectedSong))
+					{
+						removePlaylistBox.showMessageDialog(null, "You can't add duplicates to the Main Library!");
+					}
+				}
+				else
+				{
+					selectedPlaylist.playlistAddSong(selectedSong);
+					nowPlaying.setText("Added song");
+				}
+
+			}
+
+			if (selectedPlaylist == currentPlaylist)
+			{
+				libSongs.setListData(currentPlaylist.getSongsInPlaylist().toArray());
+			}
+		}
+
+		//removes a song from a playlist
+		if (e.getActionCommand().equals("Remove Song"))
+		{
+			if (selectedSong != null && selectedPlaylist != null)
+			{
+				if (selectedPlaylist.isMain())
+				{
+					removePlaylistBox.showMessageDialog(null, "You can't delete from the main library!");
+				}
+				else
+				{
+					selectedPlaylist.playlistDeleteSong(selectedSong.getTitle(), selectedSong.getArtist());
+					libSongs.setListData(selectedPlaylist.getSongsInPlaylist().toArray());
+				}
+			}
+		}
+
+		//activates/deactivates shuffle feature
+		if (e.getActionCommand().equals("Shuffle"))
+		{
+			shuffling = !shuffling;
+			if (shuffling) 
+			{
+				shuffle.setBackground(Color.MAGENTA);
+			}
+			else {
+				shuffle.setBackground(null);
+			}
+		}
+
+		//creates a playlist of all songs by the selected artist in the current playlist
+		if (e.getActionCommand().equals("Play all songs by selected artist"))
+		{
+			if (selectedSong != null)
+			{
+				libSongs.setListData(currentPlaylist.sortByArtist(selectedSong).getSongsInPlaylist().toArray());
+				currentPlaylist = currentPlaylist.sortByArtist(selectedSong);
+				lib.addPlaylistToLibrary(currentPlaylist);
+				lists.setListData(lib.getPlaylistsInLibrary().toArray());
+			}
+			else 
+				JOptionPane.showMessageDialog(null, "You need to select an artist!");
+		}
+	}
+
+	//allows for continuous play and shuffling
+	public void loadNextSong() throws IOException, InvalidMidiDataException, MidiUnavailableException
+	{
+		Random r = new Random();
+		
+		//shuffle check
+		if (shuffling)
+		{
+			if (jPlay.isPlaying())
+				jPlay.pause();
+			
+			//plays random song in playlist
+			Song next = currentPlaylist.getSongsInPlaylist().get(r.nextInt(currentPlaylist.getSongsInPlaylist().size()));
+			jPlay.openSequencer();
+			jPlay.setSong(jPlay.returnSequence(next.getPath()));
+			jPlay.play();
+			nowPlay = next.getTitle();
+			nowPlaying.setText(nowPlay);
+
+		}
+		else
+		{	
+			Song next;
+			if (jPlay.isPlaying())
+				jPlay.pause();
+
+			//plays next song in playlist
+			jPlay.openSequencer();
+			
+			//checks if it's last song in playlist so we don't get null pointer
+			if ((currentPlaylist.findSongPosition(songPlaying) + 2) > currentPlaylist.getSongsInPlaylist().size())
+			{
+				next = currentPlaylist.getSongsInPlaylist().get(0);
+				songPlaying = next;
+				jPlay.setSong(jPlay.returnSequence(next.getPath()));
+			}
+			else
+			{
+				next = currentPlaylist.getSongsInPlaylist().get(currentPlaylist.findSongPosition(songPlaying) + 1);
+				songPlaying = next;
+				jPlay.setSong(jPlay.returnSequence(next.getPath()));
+			}
+
+			jPlay.play();
+			nowPlay = next.getTitle();
+			nowPlaying.setText(nowPlay);
+		}
+	}
+	/**
+	 * Decides what songs have been selected by the user in the program
+	 */
+	@Override
+	public void valueChanged(ListSelectionEvent e)
+	{
+		if (this.getContentPane() == this.player && !libSongs.isSelectionEmpty())
+		{
+			if (!e.getValueIsAdjusting()) 
+			{
+				path = ((Song) libSongs.getSelectedValue()).getPath();
+				nowPlay = ((Song) libSongs.getSelectedValue()).getTitle();
+				selectedSong = (Song) libSongs.getSelectedValue();
+			}
+		}
+
+		if (this.getContentPane() == this.player)
+		{
+			if (!e.getValueIsAdjusting())
+			{
+				selectedPlaylist = (Playlist)lists.getSelectedValue();
+			}
+		}
+
+		if (this.getContentPane() == this.cloud)
+		{
+			if (!e.getValueIsAdjusting())
+			{
+				selCloudSong = (Song) cloudSongs.getSelectedValue();
+			}
+		}
+	}
+}

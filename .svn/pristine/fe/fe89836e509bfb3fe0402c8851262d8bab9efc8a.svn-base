@@ -1,0 +1,401 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+public class GUI extends JFrame implements ActionListener, ListSelectionListener
+{	
+	private JPanel home;
+	private JButton goToCloud, goToLib, back, back2;
+	private JLabel title;
+
+	private JPanel player;
+	private JLabel nowPlaying;
+	private JButton stop, play, pause, skip;
+	private JList libSongs;
+	private JScrollPane libScroll;
+
+	private JPanel cloudLogin;
+	private JTextField user, email, pass;
+	private JButton createUser, login;
+	private JLabel userLab, emailLab, passLab;
+	private JLabel loginMess;
+
+	private JPanel cloud; 
+	private JButton download, logout; 
+	private JList cloudSongs; 
+	private JScrollPane cloudScroll;
+
+	private MusicLibrary lib;
+	private JPlayer jPlay;
+	private String nowPlay, path;
+	private CloudAction link;
+	private CloudUser cUser;
+
+	public GUI()
+	{	
+		super("JTunes");
+		// Declarations needed for GUI to be functional.
+		lib = new MusicLibrary("Main Library");
+		lib.playlistAddSong(new Song("Dammit", "Blink-182", "Blink-182-Dammit.mid", "blank"));
+		lib.playlistAddSong(new Song("Resistance", "Muse", "muse-resistance.mid", "blank"));
+		lib.playlistAddSong(new Song("Thriller", "Michael Jackson", "michael_jackson-thriller.mid", "blank"));
+		lib.playlistAddSong(new Song("All That She Wants", "Ace of Base", "ace_of_base-all_that_she_wants.mid", "blank"));
+		lib.playlistAddSong(new Song("Another One Bites the Dust", "Queen", "queen-another_one_bites_the_dust.mid", "blank"));
+		lib.playlistAddSong(new Song("Undone - The Sweater Song", "Weezer", "weezer-sweater.mid", "blank"));
+		lib.playlistAddSong(new Song("Fix You", "Coldplay", "Fix You.mid", "blank"));
+		lib.playlistAddSong(new Song("While My Guitar Gently Weeps", "The Beatles", "While My Guitar Gently Weeps.mid", "blank"));
+
+		jPlay = new JPlayer();
+		link = new CloudAction();
+		nowPlay = "Nothing";
+		path = null;
+		cUser = null;
+
+		//Sets up home screen
+		createHome();
+		//Sets up JPlayer screen
+		createPlayer();
+		//Sets up login page
+		createLogin();
+		//Sets up Cloud interface
+		createCloud();
+
+		//Set up JFrame
+		this.setContentPane(home);
+		setSize(600, 275);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setVisible(true);
+	}
+
+	/**
+	 * Generate Login page for the cloud
+	 */
+	public void createLogin()
+	{
+		cloudLogin = new JPanel();
+		cloudLogin.setLayout(new BorderLayout());
+
+		//Generate text fields and buttons for logging in
+		JPanel loginLabels = new JPanel();
+		loginLabels.setLayout(new GridLayout(4,2));
+		userLab = new JLabel("Username: ");
+		user = new JTextField(15);
+		emailLab = new JLabel("E-mail address: ");
+		email = new JTextField(15);
+		passLab = new JLabel("Password: ");
+		pass = new JTextField(15);
+		login = new JButton("Login");
+		login.addActionListener(this);
+		createUser = new JButton("Create User");
+		createUser.addActionListener(this);
+		loginLabels.add(userLab);
+		loginLabels.add(user);
+		loginLabels.add(emailLab);
+		loginLabels.add(email);
+		loginLabels.add(passLab);
+		loginLabels.add(pass);
+		loginLabels.add(login);
+		loginLabels.add(createUser);
+		//FORMATTING
+		loginLabels.setBorder(BorderFactory.createEmptyBorder(40, 100, 50, 100));
+		cloudLogin.add(loginLabels, BorderLayout.CENTER);
+
+		// Generate title for Login Page
+		JPanel logTitle = new JPanel();
+		logTitle.setLayout(new GridLayout(1,1));
+		JLabel loginTitle = new JLabel("JTunes Cloud Store: Log in or create a new account");
+		loginTitle.setFont(new Font("Book Antiqua", Font.BOLD, 20));
+		logTitle.add(loginTitle);
+		//FORMATTING
+		logTitle.setBorder(BorderFactory.createEmptyBorder(20, 40, 0, 0));
+		cloudLogin.add(logTitle, BorderLayout.NORTH);
+
+		//Login error message
+		loginMess = new JLabel("");
+		JPanel cloudLoginBottomPanel = new JPanel();
+		cloudLoginBottomPanel.setLayout(new GridLayout(1,4));
+		// CREATE BACK BUTTON
+		back2 = new JButton("Back");
+		back2.addActionListener(this);
+		// FORMATTING
+		cloudLogin.add(cloudLoginBottomPanel, BorderLayout.SOUTH);
+		cloudLoginBottomPanel.add(loginMess);
+		cloudLoginBottomPanel.add(back2, 1);
+	}
+
+	/**
+	 * Generate Home page
+	 */
+	public void createHome()
+	{
+		//Create Header and buttons for home page
+		title = new JLabel("JTunes");
+		title.setFont(new Font("Book Antiqua", Font.BOLD, 48));
+		goToCloud = new JButton("Cloud");
+		goToCloud.addActionListener(this);
+		goToLib = new JButton("Library");
+		goToLib.addActionListener(this);
+
+		JPanel homeButtons = new JPanel();
+		homeButtons.add(goToLib);
+		homeButtons.add(goToCloud);
+
+		JPanel titPane = new JPanel();
+		titPane.add(title);
+		home = new JPanel();
+		home.setLayout(new BorderLayout());
+		home.add(titPane, BorderLayout.NORTH);
+		home.add(homeButtons, BorderLayout.SOUTH);
+	}
+
+	/**
+	 * Generate JCloud page
+	 */
+	public void createCloud()
+	{
+		//Add list of songs in Cloud and buttons to Cloud interface
+		cloud = new JPanel(); 
+		cloud.setLayout(new BorderLayout()); 
+
+		try {
+			cloudSongs = new JList(link.songList().toArray());
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		} 
+		cloudSongs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); 
+		cloudSongs.setLayoutOrientation(JList.VERTICAL); 
+		cloudSongs.setVisibleRowCount(5); 
+		cloudSongs.addListSelectionListener(this); 
+
+		JPanel listCloudSongs = new JPanel(); 
+		cloudScroll = new JScrollPane(cloudSongs); 
+		cloudScroll.setPreferredSize(new Dimension(350, 200)); 
+		listCloudSongs.add(cloudScroll); 
+
+		JPanel downloadSongs = new JPanel(); 
+		downloadSongs.setLayout(new GridLayout(3,1)); 
+		download = new JButton("Download Song"); 
+		logout = new JButton("Logout"); 
+		download.addActionListener(this); 
+		logout.addActionListener(this); 
+		downloadSongs.add(download); 
+		downloadSongs.add(new JPanel()); 
+		downloadSongs.add(logout); 
+		downloadSongs.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 50)); 
+		cloud.add(listCloudSongs, BorderLayout.WEST); 
+		cloud.add(downloadSongs, BorderLayout.EAST); 
+	}
+
+	/**
+	 * Generate Music Library page
+	 */
+	public void createPlayer()
+	{
+		player = new JPanel();
+		player.setLayout(new BorderLayout());
+
+		//Add buttons to Player interface. N.B. skip is left unimplemented
+		JPanel playButtons = new JPanel(); 
+		playButtons.setLayout(new FlowLayout());
+		stop = new JButton("Stop");
+		play = new JButton("Play");
+		pause = new JButton("Pause");
+		back = new JButton("Back");
+		//skip = new JButton("Skip");
+		stop.addActionListener(this);
+		play.addActionListener(this);
+		pause.addActionListener(this);
+		back.addActionListener(this);
+		//skip.addActionListener(this);
+		playButtons.add(play);
+		playButtons.add(pause);
+		playButtons.add(stop);
+		//playButtons.add(skip);
+
+		//Add Music Library to Player interface
+		libSongs = new JList(lib.getSongsInPlaylist().toArray()); 
+		libSongs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		libSongs.setLayoutOrientation(JList.VERTICAL);
+		libSongs.setVisibleRowCount(5);
+		libSongs.addListSelectionListener(this);
+
+		JPanel listSongs;
+		listSongs = new JPanel();
+		libScroll = new JScrollPane(libSongs);
+		libScroll.setPreferredSize(new Dimension(350, 200));
+		listSongs.add(libScroll);
+
+		//Create Now Playing label
+		JPanel playerBot = new JPanel();
+		playerBot.setLayout(new GridLayout(1, 4));
+		nowPlaying = new JLabel(nowPlay);
+		nowPlaying.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		nowPlaying.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		playerBot.add(nowPlaying);
+		playerBot.add(back, 1);
+
+		//Add buttons, Music Library, Now Playing label to Player
+		player.add(playerBot, BorderLayout.SOUTH);
+		player.add(playButtons, BorderLayout.CENTER);
+		player.add(listSongs, BorderLayout.EAST);
+		playButtons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	}
+
+	/**
+	 * Give functionality to buttons
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+
+		//Takes user from Home page to Cloud login screen
+		if (e.getActionCommand().equals("Cloud"))
+		{
+			this.setContentPane(cloudLogin);
+			this.validate();
+		}
+		//Takes user from Home page to Music Library
+		if (e.getActionCommand().equals("Library"))
+		{
+			this.setContentPane(player);
+			this.validate();
+		}
+		//Implement functionality of play button
+		if (e.getActionCommand().equals("Play"))
+		{
+			if (path == null)
+			{
+				nowPlaying.setText("You have not yet loaded a song");
+			}
+			else if (jPlay.isPlaying())
+			{
+				jPlay.pause();
+
+				try {
+					jPlay.setSong(path);
+					jPlay.play();
+					nowPlaying.setText(nowPlay);
+				} catch (IOException e1) {
+
+					e1.printStackTrace();
+				} catch (InvalidMidiDataException e1) {
+
+					e1.printStackTrace();
+				} catch (MidiUnavailableException e1) {
+
+					e1.printStackTrace();
+				}
+
+			}
+			else
+			{
+				try {
+					jPlay.setSong(path);
+					jPlay.play();
+					nowPlaying.setText(nowPlay);
+				} catch (IOException e1) {
+
+					e1.printStackTrace();
+				} catch (InvalidMidiDataException e1) {
+
+					e1.printStackTrace();
+				} catch (MidiUnavailableException e1) {
+
+					e1.printStackTrace();
+				}
+			}
+		}
+		//Implement functionality of stop button
+		if (e.getActionCommand().equals("Stop"))
+		{
+			jPlay.pause();
+			nowPlaying.setText("Not playing anything");
+		}
+		//Implement functionality of pause button
+		if (e.getActionCommand().equals("Pause"))
+		{
+			jPlay.pause();
+		}
+		//Implement functionality of login button
+		if (e.getActionCommand().equals("Login"))
+		{
+			String password = pass.getText().trim();
+			String username = user.getText().trim();
+			String eMail = email.getText().trim();
+			
+			if (!(password.isEmpty() || username.isEmpty() || eMail.isEmpty()))
+			{
+				try {
+					if (!link.checkIfAccountExists(username, eMail, password))
+					{
+						cUser = new CloudUser(username, eMail, password);
+
+						this.setContentPane(cloud);
+						this.validate();
+					}
+				} catch (IOException e1) {
+
+					loginMess.setText("Login failed");
+				}
+			}
+			else
+			{
+				loginMess.setText("You are missing information in a field.");	
+			}
+		}
+		//Allow button to create user
+		if (e.getActionCommand().equals("Create User"))
+		{
+			String password = pass.getText().trim();
+			String username = user.getText().trim();
+			String eMail = email.getText().trim();
+
+			if (!(password.isEmpty() || username.isEmpty() || eMail.isEmpty()))
+			{
+				try {
+					link.createUser(username, eMail, password);
+					loginMess.setText(link.getS());
+				} catch (IOException e1) {
+
+					loginMess.setText("User creation unsuccessful; User may exist");
+				}
+			}
+			else
+				loginMess.setText("You are missing information in a field.");
+		}
+		//Back buttons return to Home page
+		if (e.getActionCommand().equals("Back")) {
+			this.setContentPane(home);
+			this.validate();
+		}
+		//Logout button returns to Home page
+		if (e.getActionCommand().equals("Logout"))
+		{
+			this.setContentPane(home);
+			this.validate();
+		}
+	}
+
+
+	@Override
+	public void valueChanged(ListSelectionEvent e)
+	{
+		if (this.getContentPane() == this.player)
+		{
+			if (e.getValueIsAdjusting() == false) 
+			{
+				path = ((Song) libSongs.getSelectedValue()).getPath();
+				nowPlay = ((Song) libSongs.getSelectedValue()).getTitle();
+			}
+		}
+	}
+
+}

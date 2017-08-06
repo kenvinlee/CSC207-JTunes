@@ -1,0 +1,22 @@
+SPRINT BACKLOG - March 6 
+
+Shuffle through a playlist (2) Kevin
+Organize a playlist by alphabetical order - i.e. list by artist (2) Kevin
+Skip songs in a playlist (2) Lizzy & David
+Loop back into a playlist (2) Lizzy & David
+
+Create userguide following guidelines given to us in lecture (5) Kaitlin & David
+
+Download songs using xml (3) Lizzy & David
+
+Fix pause button such that it pauses a song and starts again where it left off (3) David
+
+Make log in able to recognize when a user information matches and log in is valid (2) Lizzy
+
+GUI
+- Create playlist panel in Music Library Panel that allows one to choose between Music Library or playlist - Music Library is default (3) Kevin
+- Make downloading functional with button in JCloud Panel (2) Kaitlin & Kevin
+- Add drop down menu for playlist functions we are implementing - i.e. Shuffle, Skip song, Repeat (2) Kevin & Kaitlin
+- Add/Remove song from Playlist buttons (5) Kevin & Kaitlin 
+
+POTENTIAL - testing strategy doc

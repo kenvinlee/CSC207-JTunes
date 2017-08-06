@@ -1,0 +1,9 @@
+Class Name: MusicLibrary
+Responsibilities:
+- Is a Playlist object (holds Song array, can be added to or deleted from)
+- Sorts itself by artist, album, or song
+- Creates and holds Playlist objects
+- Deletes Playlist objects
+
+Collaborators:
+- Inherits from Playlist

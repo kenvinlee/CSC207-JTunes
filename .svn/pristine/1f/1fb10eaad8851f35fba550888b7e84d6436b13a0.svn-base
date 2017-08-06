@@ -1,0 +1,38 @@
+JTunes Cloud Store:  
+User must be able to create an account. [1]
+User must be able to see a list of songs in the JTunes Cloud store. [1]
+User must be able to download songs into their JTunes Music Library. [3]
+User must be able to see details about songs when choosing one to download.  [1]
+User must be able to see a list of everything the user has downloaded from the JTunes Cloud Store. [1]
+JTunes should tell you when a song you are downloading has been previously downloaded or is already in the library. [3]
+
+JTunes Cloud User:
+Keeps track of password, username, and email [1]
+
+JTunes:
+Music Library should hold a song list such that one can choose a song from it. [1]
+Music Library should have a function that sorts it by artists. [2]
+
+GUI:
+Used solely with a mouse. [2]
+A display for the list of songs that can be selected [3]
+Buttons for play, pause, stop [1]
+Section that accesses the JTunes Cloud and all its functionality [4]
+Create Cloud login screen [3]
+Fix Pause button. [2]
+Add more functionality to player.
+- Switching through Playlists [3]
+- Creating/Deleting Playlists [2]
+- Implement continuous play of Playlists [3]
+- Add skip song function [2]
+- Create shuffle feature for Playlists [3]
+
+Playlist:
+Must be able to add/delete songs [1]
+Finds songs [1]
+
+Song:
+Needs methods for comparisons [1.5]
+Be able to create via cloud/ hardcode songs into Library [2]
+
+

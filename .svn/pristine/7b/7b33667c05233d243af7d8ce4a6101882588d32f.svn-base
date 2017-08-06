@@ -1,0 +1,196 @@
+import java.util.ArrayList;
+
+/**
+ * A Playlist which contains Song objects.
+ */
+public class Playlist {
+	// All the items up here are still instance variables even if they are
+	// not specifically used in the constructor block.
+	
+	private String name;
+	private int numSongs = 0;
+	private boolean mainPlaylist = false;
+	private ArrayList<Song> songsInPlaylist = new ArrayList<Song>();
+	// playlistSongs is an ArrayList of Song objects
+
+	/**
+	 * Create a new Playlist object with a name parameter
+	 */
+	public Playlist(String name) {
+		this.name = name;
+	}
+	
+	// ------------------------------------------------------------------- //
+	
+	// SETTER AND GETTER FUNCTIONS //
+	
+	/**
+	 * Getter function for instance variable name
+	 */
+	public String getName() {
+		return this.name;
+	}
+	
+	/**
+	 * Getter function for instance variable numSongs
+	 */
+	public int getNumSongs() {
+		return this.numSongs;
+	}
+	
+	/**
+	 * Getter function for instance variable songsInPlaylist
+	 */
+	public ArrayList<Song> getSongsInPlaylist() {
+		return songsInPlaylist;
+	}
+	
+	// ------------------------------------------------------------------- //
+	
+	/**
+	 * Add a Song object to the Playlist's 'playlistSongs' ArrayList
+	 */
+	public void playlistAddSong(Song song1) {
+		// Find the size of playlistSongs ArrayList
+			
+		// Insert a song into the ArrayList
+		this.songsInPlaylist.add(this.numSongs, song1);
+			
+		this.numSongs = this.numSongs + 1;
+	}
+	
+	/**
+	 * Delete a Song object from the Playlist's 'playlistSongs' ArrayList
+	 */
+	public void playlistDeleteSong(String title, String artist) {
+		
+		if (! this.playlistIsEmpty()) {
+			// For each item in the ArrayList, check if the artist and title match the parameters given.
+			// If they match the parameters, we have found the song. Return its idxNumberInList (index).
+			int idxNumberInList = 0;
+			for (int i = 0; i < this.songsInPlaylist.size(); i++) {
+				if (this.songsInPlaylist.get(i).getTitle().equals(title)) {
+					if (this.songsInPlaylist.get(i).getArtist().equals(artist)) {
+						idxNumberInList = i;
+					}
+				}
+			}
+			// Remove the Song from the ArrayList
+			this.songsInPlaylist.remove(idxNumberInList);	
+			
+			// Edit the numSongs variable as we have one less song
+			this.numSongs = this.numSongs - 1;
+		}
+		
+		else {}
+	}
+	
+	/**
+	 * Return true if this.playlistSongs ArrayList is empty. If not, return false.
+	 */
+	public boolean playlistIsEmpty() {
+		if (this.numSongs == 0) {
+			return true;
+		}
+		
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * If a Song name is in the Playlist, return the path. If not, return an error message.
+	 */
+	public String findSongByName(String name)
+	{
+		Song s = null;
+		
+		if (songsInPlaylist.isEmpty())
+			return "Playlist has no songs";
+		else
+			for (int i = 0; i < songsInPlaylist.size(); i++)
+			{
+				//I don't think case sensitivity matters here...
+				if (songsInPlaylist.get(i).getTitle().equalsIgnoreCase(name))
+					s = songsInPlaylist.get(i);
+			}
+		
+		//return the song or error message
+		if (s == null)
+		{
+			return "Song does not exist";
+		}
+		else
+			return s.getPath();
+	}
+	
+	public int findSongPosition(Song s)
+	{
+		int position = 0;
+		
+		if (songsInPlaylist.isEmpty())
+			return -1;
+		else
+			//TODO this loop is broken, fix it and continuous play will work 100%
+			for (int i = 0; i < songsInPlaylist.size(); i++, position++)
+			{
+				if(this.getSongsInPlaylist().get(i).equals(s))
+				{
+					i = songsInPlaylist.size();
+				}
+			}
+	
+		return position-1;
+	}
+	
+	public boolean doesSongExist(Song s)
+	{
+		//if this method fucks up, it's because I assumed that it's okay that the song doesn't exist in playlist until found.
+		boolean exists = false;
+		
+		if (songsInPlaylist.isEmpty())
+			exists = false;
+		else
+			for (int i = 0; i < songsInPlaylist.size(); i++)
+			{
+				if (s == songsInPlaylist.get(i));
+				{
+					exists = true;
+				}
+			}
+		
+		return exists;
+	}
+	
+	public Playlist sortByArtist(Song s)
+	{
+		Playlist byArtist = new Playlist(s.getArtist());
+		
+		for (int i = 0; i < songsInPlaylist.size(); i++)
+		{
+			if (songsInPlaylist.get(i).getArtist().equalsIgnoreCase(s.getArtist()))
+			{
+				byArtist.playlistAddSong(s);
+			}
+		}
+		
+		return byArtist;
+	}
+	
+	public String toString()
+	{
+		return this.name;
+	}
+	
+	public void setMain()
+	{
+		this.mainPlaylist = true;
+	}
+	
+	public boolean isMain()
+	{
+		return mainPlaylist;
+	}
+}
+	
+	

@@ -1,0 +1,232 @@
+import java.net.*;
+
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.io.*;
+import java.util.*;
+
+import javax.xml.parsers.*;
+
+/**
+ * An object that allows interaction between JTunes and the JTunes Cloud
+ */
+public class CloudAction {
+	private String s;
+	
+	/**
+	 * Create a new instance of CloudAction
+	 */
+	public CloudAction() {}
+
+	/**
+	 * Return an ArrayList of Strings with the contents of the URL.
+	 * Each line of the URL content is an entry in the ArrayList
+	 * Every fourth line has an empty string
+	 * example: ["526e0471608e16b1aed74c378c4b2664", "Dido", "White Flag", "", ...etc...]
+	 * @return ArrayList<String>
+	 * @throws Exception
+	 */
+	public ArrayList<String> listSongs() throws Exception {
+		URL songs = new URL("http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs");
+		BufferedReader input = new BufferedReader(new InputStreamReader(songs.openStream()));
+		String inputLine;
+
+		ArrayList<String> readSongs = new ArrayList<String>();
+
+		// Every fourth line has an empty string.
+		// This can always be changed if necessary
+		// See 'listSongsForUser' method for implementation example
+		while ((inputLine = input.readLine()) != null) {
+			readSongs.add(inputLine);
+		}
+
+		input.close();
+		return readSongs;
+		
+		
+		/*URL sonGs = new URL("http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs");
+		URI songz = sonGs.toURI();
+		DocumentBuilderFactory Dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder Db = Dbf.newDocumentBuilder();
+		songzz = Db.parse(songz);
+		*/
+		
+		
+	}
+	
+	
+	/**
+	 * Create an ArrayList of Song objects
+	 * @return ArrayList<String>
+	 * @throws Exception
+	 */
+	public ArrayList<String> songList() throws Exception
+	{
+		ArrayList<String> songDetails = listSongs();
+		ArrayList<Song> songs = new ArrayList<Song>();
+		ArrayList<String>sOnGz = new ArrayList<String>();
+
+		String id = null;
+		String title = null;
+		String artist = null;
+
+		for (int i = 0, j = 0; i < songDetails.size(); i++, j++)
+		{	
+//			if ((i % 4) == 0)
+//			{
+//				id = songDetails.get(i);
+//			}
+//			else if ((i % 4) == 1)
+//			{
+//				artist = songDetails.get(i);
+//			}
+//			else if ((i % 4) == 2)
+//			{
+//				title = songDetails.get(i);
+//			}
+//
+//			if (j > 0 && ((j % 4) == 0))
+//			{
+//				songs.add(new Song(id, title, artist));
+//				id = null;
+//				title = null;
+//				artist = null;
+//			}
+		if (songDetails.get(i).startsWith("<") && songDetails.get(i).endsWith(">")) {
+				sOnGz.add(songDetails.get(i));
+				
+			}
+			
+		}
+		return sOnGz;
+	}
+
+	/**
+	 * Return an ArrayList<String> with each line of the website entered in as an element of the list.
+	 * @param user The CloudUser who is downloading the song.
+	 * @return ArrayList<String>
+	 * @throws Exception
+	 */
+	public ArrayList<String> listSongsForUser(CloudUser user) throws Exception {
+		String website = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs?email=" + 
+				user.getEmail() + "&password=" + user.getPass();
+		URL songs = new URL(website);
+		BufferedReader input = new BufferedReader(new InputStreamReader(songs.openStream()));
+		String inputLine;
+
+		ArrayList<String> readSongsForUser = new ArrayList<String>();
+
+		while((inputLine = input.readLine()) != null) {
+
+			// REFERENCE FROM 'listSongs' METHOD!
+			// If I don't put this next line, there is an empty string that gets added to the ArrayList
+			// at every fourth index
+			if (inputLine.equals("")) {}
+
+			else {
+				readSongsForUser.add(inputLine);
+			}
+		}
+
+		input.close();
+		return readSongsForUser;
+	}
+	/**
+	 * Return true if the account already exists.
+	 * @param email the user's email
+	 * @param password the user's password
+	 * @return boolean
+	 * @throws IOException
+	 */
+	public boolean checkIfAccountExists(String name, String email, String password) throws IOException {
+		boolean userExists = false;
+
+		String linkToCreateUser = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs?name=" +
+				name +"email=" + email +"&password=" + password;
+
+		URL url = new URL(linkToCreateUser);
+		BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+		String inputLine;
+		while ((inputLine = in.readLine()) != null) {
+			if (! (inputLine.equals("User already exists."))) {
+
+			}
+			else {
+				userExists = true;
+			}
+		}
+		in.close();
+
+		return userExists;
+	}
+
+
+	/**
+	 * Create a JCloud User Account from name, email and password Strings to give the new user
+	 * the ability to download songs from the JCloud Store.
+	 * @param name The username for the new user
+	 * @param email The email address associated with the JCloud User Account
+	 * @param password The password associated with the JCloud User Account
+	 * @throws IOException
+	 */
+	public void createUser(String name, String email, String password) throws IOException {
+
+		if (checkIfAccountExists(name, email, password)) {
+			s = "User already exists.";
+		}
+
+		else {
+			String linkToCreateUser = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/createUser?name=" +
+					name + "&email=" + email + "&password=" + password;
+
+			URL url = new URL(linkToCreateUser);
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+			String inputLine;
+			while ((inputLine = in.readLine()) != null) {
+				s = inputLine;
+			}
+			
+			in.close();
+			
+			int index1 = s.indexOf(">") + 1; //off by 1
+			int index2 = s.lastIndexOf("<");
+			String s1 = s.substring(index1, index2);
+			s = s1;
+		}
+
+	}
+	
+	/**
+	 * Getter function for the instance variable 's'
+	 * @return String
+	 */
+	public String getS()
+	{
+		return s;
+	}
+
+	/**
+	 * Download a MIDI file from the JCloud Store and saves into the current directory.
+	 * The file path will be "<songid>.mid"
+	 * @param user The CloudUser who is downloading the song.
+	 * @param id The SongID the user wants to download.
+	 * @throws IOException
+	 * @return void
+	 */
+	public static void downloadSong(CloudUser user, String id) throws IOException {
+		// Create a link to a song based on the user's credentials and the songid we would like to donwload
+		String linkToSong = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/getSong?email="
+				+ user.getEmail() + "&password=" + user.getPass() + "&songid=" + id;
+		URL website = new URL(linkToSong);
+		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+
+		// Create an outputstream and name the file
+		FileOutputStream fos = new FileOutputStream(id + ".mid");
+		// Actually download the song
+		fos.getChannel().transferFrom(rbc, 0, 1 << 24);
+
+		// The song should now be present in the same directory as the compiled file
+	}
+}

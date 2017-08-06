@@ -1,0 +1,9 @@
+Fix the following bugs:
+Main Playlist in the Library will retain downloaded songs of previous users (4)
+
+sortByArtist in Playlist will put multiple copies of the same song by the artist instead of all the songs (3)
+
+When you do a series of additions to a playlist created by the "Play songs by selected artist" option, you get a display glitch when
+loading the same playlist (4)
+
+Login is some ridiculous n^5 or n^6 algorithm... (Kevin's trash) (10)

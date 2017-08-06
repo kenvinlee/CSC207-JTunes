@@ -1,0 +1,12 @@
+Sprint Backlog as of February 28, 2013
+
+JTunes Cloud Link: (DAVID AND LIZZY) 
+Make into singleton. [4]
+
+GUI: (KAITLIN AND KEVIN)
+Rework Main class to be functional with GUI. [3]
+Attempt to implement download function in GUI.[2]
+Attempt to implement login screen.[4]
+
+IF TIME:
+Split up GUI constructor into seperate methods. [4]

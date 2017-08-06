@@ -1,0 +1,64 @@
+import javax.sound.midi.*;
+import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+
+/**
+ * A Player allows stopping, starting, and pausing a Song object
+ */
+public class JPlayer { 
+	private boolean sound = false;
+	private Sequencer sqcr;
+	
+	/**
+	 * Create a new instance of the Player class by giving it a Song path as a parameter
+	 */
+	public JPlayer() 
+	{
+		
+	}
+	
+	public void setSong(String path) throws IOException, InvalidMidiDataException, MidiUnavailableException 
+	{
+		FileInputStream inputStream = new FileInputStream(path);
+		BufferedInputStream bis = new BufferedInputStream(inputStream);
+		Sequence sq = MidiSystem.getSequence(bis);
+		Sequencer sqcr = MidiSystem.getSequencer();
+		this.sqcr = sqcr;
+		sqcr.open();
+    	sqcr.setSequence(sq);
+	}
+	
+	
+	/**
+	 * Play a song by starting a sequence.
+	 */
+	public void play() throws MidiUnavailableException, InvalidMidiDataException, IOException {
+        if (! sound) {
+        	sqcr.start();
+        	sound = ! sound;
+        }
+        else {}	
+	}
+	
+	/** Pause a song by stopping a sequence. N.B. Currently stops sequence.
+	 */
+	public void pause() {
+		if (sound) {
+			sqcr.stop();
+			sound = !sound;
+		}
+		else {}
+	}
+	
+	/** Stop a song by closing the song file.
+	 */
+	public void stop() {
+		sqcr.close();
+	}
+	
+	public boolean isPlaying()
+	{
+		return sound;
+	}
+}

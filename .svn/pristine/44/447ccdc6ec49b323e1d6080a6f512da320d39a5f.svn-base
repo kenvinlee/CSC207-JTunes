@@ -1,0 +1,9 @@
+Class Name: JPlayer
+Responsibilities:
+- Play a Song object
+- Pause a Song object
+- Stop a Song object
+- Shuffle through a playlist
+
+Collaborators:
+

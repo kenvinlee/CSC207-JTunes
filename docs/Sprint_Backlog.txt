@@ -1,0 +1,18 @@
+Sprint Backlog as of February 25, 2013
+
+JTunes Cloud Link: (DAVID AND LIZZY) 
+User must be able to see a list of songs in the JTunes Cloud store. [1]
+User must be able to download songs into their JTunes Music Library. [3]
+User must be able to see details about songs when choosing one to download. [1]
+JTunes should tell you when a song you are downloading has been previously downloaded or is already in the library. [3]
+User must be able to see a list of everything the user has downloaded from the JTunes Cloud Store. [1]
+
+PRIORITIZE: Lisiting songs
+
+
+GUI: (KAITLIN AND KEVIN)
+Used solely with a mouse. [2]
+A display for the list of songs that can be selected [3]
+Buttons for play, pause, stop [1]
+Section that accesses the JTunes Cloud and all its functionality [4]
+Rework Main class to be functional with GUI. [3]

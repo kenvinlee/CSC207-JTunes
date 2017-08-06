@@ -1,0 +1,388 @@
+import java.net.*;
+
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.io.*;
+import java.util.*;
+
+import javax.xml.parsers.*;
+
+/**
+ * An object that allows interaction between JTunes and the JTunes Cloud
+ */
+public class CloudAction {
+	private String s;
+
+	/**
+	 * Create a new instance of CloudAction
+	 */
+	public CloudAction() {}
+
+	/**
+	 * Return an ArrayList of Strings with the contents of the URL.
+	 * Each line of the URL content is an entry in the ArrayList
+	 * Every fourth line has an empty string
+	 * example: ["526e0471608e16b1aed74c378c4b2664", "Dido", "White Flag", "", ...etc...]
+	 * @return ArrayList<String>
+	 * @throws Exception
+	 */
+	public ArrayList<String> listSongs() throws Exception {
+		URL songs = new URL("http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs");
+		BufferedReader input = new BufferedReader(new InputStreamReader(songs.openStream()));
+		String inputLine;
+
+		ArrayList<String> readSongs = new ArrayList<String>();
+
+		// --- OLD CODE --- //
+
+		// Every fourth line has an empty string.
+		//This can always be changed if necessary
+		//See 'listSongsForUser' method for implementation example
+		while ((inputLine = input.readLine()) != null) {
+			readSongs.add(inputLine.trim());
+		}
+
+		input.close();
+		return readSongs;
+
+	}
+
+	// --- END OLD CODE --- //
+	//		
+	//		while ((inputLine = input.readLine()) != null) {
+	//			
+	//			// Remove the white space at the beginning if there is any
+	//			String inputLine2 = inputLine.trim();
+	//			
+	//			readSongs.add(inputLine2);
+	//			
+	//		}
+	//		
+	//		ArrayList<String> readSongs2 = new ArrayList<String>();
+	//		
+	//		// This is what does all the major formatting
+	//		for (int i = 0; i < readSongs.size(); i++) {
+	//			
+	//			//If the beginning starts with "<response" or "</song" or "</response", then skip
+	//			if (readSongs.get(i).startsWith("<response") || readSongs.get(i).startsWith("</song") || 
+	//					readSongs.get(i).startsWith("</response")) {}
+	//			
+	//			else {
+	//				if (readSongs.get(i).startsWith("<")) {
+	//					// The song name starts from the 13th index spot
+	//					// Finds the artist name
+	//					int lastQuote = readSongs.get(i).indexOf('"', 13);
+	//					
+	//					System.out.println(lastQuote);
+	//					
+	//					String name = readSongs.get(i).substring(13, lastQuote);
+	//					
+	//					readSongs2.add(name);
+	//					
+	//				}
+	//				
+	//				else {
+	//					readSongs2.add(readSongs.get(i));
+	//				}
+	//			}
+	//			
+	//		}
+	//		
+	//		input.close();
+	//		return readSongs;
+	//	}
+
+
+	/**
+	 * Create an ArrayList of Song objects
+	 * @return ArrayList<Song>
+	 * @throws Exception
+	 */
+	public ArrayList<Song> songList() throws Exception
+	{
+		ArrayList<String> songDetails = listSongs();
+		ArrayList<Song> songs = new ArrayList<Song>();
+		ArrayList<String> songInfo = new ArrayList<String>();
+
+		String id = null;
+		String title = null;
+		String artist = null;
+
+		for (int i = 0, j = 0; i < songDetails.size(); i++, j++)
+		{	
+			if (!songDetails.get(i).startsWith("<")) {
+
+				id = songDetails.get(i);
+
+			}
+
+			else if(songDetails.get(i).startsWith("<song name=")) {
+				String[] moreSongs = songDetails.get(i).split("\"");
+				title = moreSongs[1];
+				artist = moreSongs[3];
+
+			}
+
+			else if(j > 0 && (j % 4) == 0) {
+				songs.add(new Song(id, title, artist));
+			}
+
+		}
+		return songs;
+	}
+	
+	
+	public ArrayList<Song> checkUserDL(CloudUser cu) throws Exception
+	{
+		ArrayList<Song> byID = new ArrayList<Song>();
+		ArrayList<String> dledSongs = listSongsForUser(cu);
+
+		for (int i = 0; i < dledSongs.size(); i++)
+		{
+			for (int j = 0; j < this.songList().size(); j++)
+			{
+				if (listSongsForUser(cu).get(i).equals(songList().get(j).getID()))
+				{
+					byID.add(songList().get(j));
+				}
+			}
+		}
+
+		return byID;
+	}
+	
+	/**
+	 * Return an ArrayList<String> with each line of the website entered in as an element of the list.
+	 * @param user The CloudUser who is downloading the song.
+	 * @return ArrayList<String>
+	 * @throws Exception
+	 */
+	public ArrayList<String> listSongsForUser(CloudUser user) throws Exception {
+		String website = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs?email=" + 
+				user.getEmail() + "&password=" + user.getPass();
+		URL songs = new URL(website);
+		BufferedReader input = new BufferedReader(new InputStreamReader(songs.openStream()));
+		String inputLine;
+
+		ArrayList<String> readSongsForUser = new ArrayList<String>();
+
+		while((inputLine = input.readLine()) != null) {
+			inputLine = inputLine.trim();
+			// REFERENCE FROM 'listSongs' METHOD!
+			// If I don't put this next line, there is an empty string that gets added to the ArrayList
+			// at every fourth index
+			if (inputLine.equals("")) {}
+			else if (inputLine.charAt(0) == ('<'));
+			else {
+				readSongsForUser.add(inputLine);
+			}
+		}
+
+		input.close();
+		return readSongsForUser;
+	}
+
+	//checks if the user has already downloaded the song
+	public boolean checkDownloaded(Song s, CloudUser user)
+	{
+		boolean already = false;
+		ArrayList<String> listOfDL = null;
+		try {
+			listOfDL = listSongsForUser(user);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		for (int i = 0; i < listOfDL.size(); i++)
+		{
+			if (listOfDL.get(i).equals(s.getID()))
+				already = true;
+		}
+
+		return already;
+	}
+	/**
+	 * Return true if the account already exists.
+	 * @param email the user's email
+	 * @param password the user's password
+	 * @return boolean
+	 * @throws IOException
+	 */
+	public boolean checkIfAccountExists(String name, String email, String password) throws IOException {
+		boolean userExists = false;
+
+		String linkToCreateUser = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/listSongs?name=" +
+				name +"email=" + email +"&password=" + password;
+
+		URL url = new URL(linkToCreateUser);
+		BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+		String inputLine;
+		while ((inputLine = in.readLine()) != null) {
+			if (! (inputLine.equals("User already exists."))) {
+
+			}
+			else {
+				userExists = true;
+			}
+		}
+		in.close();
+
+		return userExists;
+	}
+
+
+	/**
+	 * Create a JCloud User Account from name, email and password Strings to give the new user
+	 * the ability to download songs from the JCloud Store.
+	 * @param name The username for the new user
+	 * @param email The email address associated with the JCloud User Account
+	 * @param password The password associated with the JCloud User Account
+	 * @throws IOException
+	 */
+	public void createUser(String name, String email, String password) throws IOException {
+
+		if (checkIfAccountExists(name, email, password)) {
+			s = "User already exists.";
+		}
+
+		else {
+			String linkToCreateUser = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/createUser?name=" +
+					name + "&email=" + email + "&password=" + password;
+
+			URL url = new URL(linkToCreateUser);
+			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+			String inputLine;
+			while ((inputLine = in.readLine()) != null) {
+				s = inputLine;
+			}
+
+			in.close();
+
+			int index1 = s.indexOf(">") + 1; //off by 1
+			int index2 = s.lastIndexOf("<");
+			String s1 = s.substring(index1, index2);
+			s = s1;
+		}
+
+	}
+
+	/**
+	 * Getter function for the instance variable 's'
+	 * @return String
+	 */
+	public String getS()
+	{
+		return s;
+	}
+
+	/**
+	 * Download a MIDI file from the JCloud Store and saves into the current directory.
+	 * The file path will be "<songid>.mid"
+	 * @param user The CloudUser who is downloading the song.
+	 * @param id The SongID the user wants to download.
+	 * @throws IOException
+	 * @return void
+	 */
+	public static void downloadSong(CloudUser user, String id) throws IOException {
+		// Create a link to a song based on the user's credentials and the songid we would like to download
+		String linkToSong = "http://greywolf.cdf.toronto.edu:1337/justicebeaver/getSong?email="
+				+ user.getEmail() + "&password=" + user.getPass() + "&songid=" + id;
+		URL website = new URL(linkToSong);
+		BufferedReader contents = new BufferedReader(new InputStreamReader(website.openStream()));
+
+		contents.readLine();
+
+		String hex = contents.readLine();
+
+		int i, j;
+		i = hex.indexOf("\"base16\">") + 9;
+		j = hex.indexOf("<", i);
+
+		hex = hex.substring(i, j);
+
+		byte[] songByteArray = decode(hex);
+		// Create an outputstream and name the file
+		FileOutputStream fos = new FileOutputStream(id + ".mid");
+		// Actually download the song
+		fos.write(songByteArray);
+		fos.close();
+
+		// The song should now be present in the same directory as the compiled file
+	}
+
+	public static void  printer() throws IOException, MalformedURLException {
+		URL website = new URL("http://greywolf.cdf.toronto.edu:1337/supersteve/getSong?email=lukejkremer@gmail.com&password=John7788&songid=88c11218da6c0a72883fd2e2d141bc5c");
+		BufferedReader in = new BufferedReader(new InputStreamReader(website.openStream()));
+		//        in.nextLine();
+		//        String l3 = in.nextLine();
+		int c;
+		StringBuilder response= new StringBuilder(10000000);
+
+		while ((c = in.read()) != -1) {
+			//Since c is an integer, cast it to a char. If it isn't -1, it will be in the correct range of char.
+			response.append( (char)c ) ;  
+		}
+		String result = response.toString(); 
+		String  l7 = "";
+		boolean i =  false;
+		for (int y = 54; y < result.length(); y++){
+			char ch = result.charAt(y);
+			if (ch == '<'){
+				i = true;
+			}
+			else if (i == false){
+				l7 += ch;			}}
+		byte[] r = decode(l7);
+		filer(r);}
+
+
+
+
+
+	/**
+	 * Convert a base16 string into a byte array.
+	 */
+	public static byte[] decode(String s) {
+		int len = s.length();
+		byte[] r = new byte[len / 2];
+		for (int i = 0; i < r.length; i++) {
+			int digit1 = s.charAt(i * 2), digit2 = s.charAt(i * 2 + 1);
+			if (digit1 >= '0' && digit1 <= '9')
+				digit1 -= '0';
+			else if (digit1 >= 'a' && digit1 <= 'f')
+				digit1 -= 'a' - 10;
+			if (digit2 >= '0' && digit2 <= '9')
+				digit2 -= '0';
+			else if (digit2 >= 'a' && digit2 <= 'f')
+				digit2 -= 'a' - 10;
+
+			r[i] = (byte) ((digit1 << 4) + digit2);
+		}
+		return r;
+	}
+
+	public static void filer(byte[] b) throws IOException{
+		//convert array of bytes into file
+
+		String fileName = "file32.mid";
+
+		BufferedOutputStream bs = null;
+
+		try {
+
+			FileOutputStream fs = new FileOutputStream(new File(fileName));
+			bs = new BufferedOutputStream(fs);
+			bs.write(b);
+			bs.close();
+			bs = null;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (bs != null) try { bs.close(); } catch (Exception e) {}
+
+	}
+}

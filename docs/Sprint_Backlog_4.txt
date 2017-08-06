@@ -1,0 +1,16 @@
+SPRINT BACKLOG - March 13
+
+Player:
+- Shuffle through a playlist (2) Kevin
+- Loop back into a playlist (2) Kevin and Kaitlin
+
+GUI:
+- Make downloading functional with button in JCloud Panel (2) Kaitlin & Kevin
+- Add drop down menu for playlist functions we are implementing - i.e. Shuffle, Skip song, Repeat (2) Kevin & Kaitlin
+- Fix login
+
+Bugs:
+- Fix pause button such that it pauses a song and starts again where it left off (3) David
+
+User Guide:
+- Create userguide following guidelines given to us in lecture (5) Kaitlin & David

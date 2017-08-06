@@ -1,0 +1,9 @@
+Class Name: Playlist
+Responsibilities:
+- Holds an array of Song objects
+- Song objects can be added to a Playlist array
+- Song objects can be deleted from a Playlist array
+
+Collaborators:
+- Has subclass MusicLibrary
+- Composed of Song objects

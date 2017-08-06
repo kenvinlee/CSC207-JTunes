@@ -1,0 +1,216 @@
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import java.awt.Color;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JMenuBar;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JList;
+import java.awt.Button;
+import java.awt.Font;
+
+
+public class newGUI {
+
+	private JFrame frame;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					newGUI window = new newGUI();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public newGUI() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.getContentPane().setFont(new Font("Georgia", Font.PLAIN, 16));
+		frame.getContentPane().setBackground(Color.WHITE);
+		frame.getContentPane().setForeground(Color.BLACK);
+		frame.setBounds(100, 100, 883, 571);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/Jtunes_3.png")));
+		
+		//Add Play JButton
+		JButton play = new JButton("");
+		play.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_play.png")));
+		play.setBackground(Color.WHITE);
+		
+		//Add Pause JButton
+		JButton pause = new JButton("");
+		pause.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_pause.png")));
+		pause.setBackground(Color.WHITE);
+		
+		//Add Stop JButton
+		JButton button = new JButton("");
+		button.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_stop.png")));
+		button.setBackground(Color.WHITE);
+		
+		//Add Skip forward JButton
+		JButton skip = new JButton("");
+		skip.setBackground(Color.WHITE);
+		skip.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_skip_f.png")));
+		
+		//Add Skip backward JButton
+		JButton back = new JButton("");
+		back.setBackground(Color.WHITE);
+		back.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_skip_b.png")));
+		
+		//Add Music Library JList
+		JList list = new JList();
+		list.setBackground(Color.LIGHT_GRAY);
+		
+		JLabel lblNewLabel_2 = new JLabel("Now Playing");
+		
+		JButton repeat = new JButton("");
+		repeat.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_repeat.png")));
+		
+		JButton shuffle = new JButton("");
+		shuffle.setIcon(new ImageIcon(newGUI.class.getResource("/Icons/my_shuffle.png")));
+		
+		JList list_1 = new JList();
+		list_1.setBackground(Color.LIGHT_GRAY);
+		
+		JList list_2 = new JList();
+		list_2.setBackground(Color.LIGHT_GRAY);
+		
+		JButton btnLogin = new JButton("Login");
+		
+		JButton btnCreateUser = new JButton("Create User");
+		
+		JButton btnAdd = new JButton("Add\r\n");
+		btnAdd.setFont(new Font("Georgia", Font.PLAIN, 16));
+		
+		JButton btnDelete = new JButton("Delete");
+		btnDelete.setFont(new Font("Georgia", Font.PLAIN, 16));
+		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.TRAILING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblNewLabel_1)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(btnLogin)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnCreateUser))
+								.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 157, GroupLayout.PREFERRED_SIZE))
+							.addGap(96)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(play, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(pause, GroupLayout.PREFERRED_SIZE, 48, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(button, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE))
+								.addGroup(groupLayout.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(back, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(skip, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+										.addComponent(shuffle, 0, 0, Short.MAX_VALUE)
+										.addComponent(repeat, GroupLayout.PREFERRED_SIZE, 55, Short.MAX_VALUE)))))
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(list_2, GroupLayout.PREFERRED_SIZE, 338, GroupLayout.PREFERRED_SIZE)
+							.addGap(142)))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+								.addComponent(list, GroupLayout.PREFERRED_SIZE, 365, GroupLayout.PREFERRED_SIZE)
+								.addComponent(list_1, GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE))
+							.addGap(25))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(btnAdd, GroupLayout.PREFERRED_SIZE, 75, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnDelete)
+							.addGap(220))))
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(27)
+							.addComponent(list, GroupLayout.PREFERRED_SIZE, 213, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addGap(39)
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
+										.addComponent(pause, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(button, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(play, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addGroup(groupLayout.createSequentialGroup()
+											.addPreferredGap(ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+											.addComponent(repeat)
+											.addGap(0))
+										.addGroup(groupLayout.createSequentialGroup()
+											.addPreferredGap(ComponentPlacement.RELATED)
+											.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+												.addComponent(back)
+												.addComponent(skip)))))
+								.addGroup(groupLayout.createSequentialGroup()
+									.addContainerGap()
+									.addComponent(lblNewLabel_1)
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+									.addGap(50)))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+								.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+									.addComponent(btnLogin)
+									.addComponent(btnCreateUser))
+								.addComponent(shuffle))))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addComponent(list_2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+								.addComponent(btnAdd)
+								.addComponent(btnDelete))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(list_1, GroupLayout.PREFERRED_SIZE, 209, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap())
+		);
+		frame.getContentPane().setLayout(groupLayout);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		JMenuBar menuBar_1 = new JMenuBar();
+		menuBar.add(menuBar_1);
+	}
+}

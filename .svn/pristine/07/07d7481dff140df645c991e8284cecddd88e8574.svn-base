@@ -1,0 +1,6 @@
+Class Name: Song
+Responsibilities:
+- Hold details of a Song object: title, artist, album
+- Hold path to .midi file
+
+Collaborators:
